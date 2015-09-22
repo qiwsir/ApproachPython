@@ -15,3 +15,4 @@
 5. [用chararray做字符串操作](./numpystr/)
 6. [忽略负数和极值，并做图](./masked/)
 7. [Numpy中的数组大小和执行时间关系](./timeit/)
+8. [k-近邻算法](./knn/)
