@@ -16,3 +16,4 @@
 6. [忽略负数和极值，并做图](./masked/)
 7. [Numpy中的数组大小和执行时间关系](./timeit/)
 8. [k-近邻算法](./knn/)
+9. [计算熵](./entropy/entropy.py)
