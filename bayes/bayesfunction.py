@@ -3,6 +3,7 @@
 
 #朴素贝叶斯算法一个例子
 #高斯分布
+#来源：http://python.jobbole.com/81019
 
 import csv
 import random
@@ -107,35 +108,37 @@ def predict(summaries, input_vector):
             best_label = class_value
     return best_label
 
+def getPredictions(summaries, test_set):
+    """
+    多重预测，对测试数据中么个数据样本进行预测，并返回预测结果列表
+    """
+    predictions = []
+    for i in range(len(test_set)):
+        result = predict(summaries, test_set[i])
+        predictions.append(result)
+    return predictions
 
+def getAccuracy(test_set, predictions):
+    """
+    检验预测结果的准确概率
+    """
+    correct = 0
+    for x in range(len(test_set)):
+        if test_set[x][-1] == predictions[x]:
+            correct += 1
+    return (correct / float(len(test_set))) * 100.0
 
-#filename = "pima.data.csv"
-#dataset = loadCsv(filename)
-#print "Loaded data file {0} with {1}".format(filename, len(dataset))
-#print dataset[1]
+def main():
+    filename = "pima.data.csv"
+    split_ratio = 0.67
+    dataset = loadCsv(filename)
+    train, test = splitDataset(dataset, split_ratio)
+    print 'Split {0} rows into train = {1} and test={2} rows'.format(len(dataset), len(train), len(test))
 
-#dataset = [[1], [2], [3], [4], [5]]
-#dataset = list(dataset[:10])
-#split_ratio = 0.67
-#train, test = splitDataset(dataset, split_ratio)
-#print 'Split {0} rows into train with {1} and test with {2}'.format(len(dataset), train, test)
+    summaries_main = summarizeByClass(train)
 
-#separated = separateByClass(dataset)
-#print 'Separated instances: {0}'.format(separated)
+    predictions_main = getPredictions(summaries_main, test)
+    accuracy = getAccuracy(test, predictions_main)
+    print "Accuracy: {0}%".format(accuracy)
 
-#numbers = [1,2,3,4,5]
-#print "Summary of {0}: mean={1}, stdev={2}".format(numbers, mean(numbers), stdev(numbers))
-
-#s = summarizeByClass(dataset)
-#print "Attribute summarizes: {0}".format(s)
-
-#x = 71.5
-#m = 73
-#s = 6.2
-#p = calculateProbability(x,m,s)
-#print p
-
-su = {"A":[(1, 0.5)], "B":[(20,5.0)]}
-inp = [1.1, "?"]
-res = predict(su, inp)
-print res
+main()
