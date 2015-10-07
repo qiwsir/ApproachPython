@@ -17,3 +17,4 @@
 7. [Numpy中的数组大小和执行时间关系](./timeit/)
 8. [k-近邻算法](./knn/)
 9. [计算熵](./entropy/entropy.py)
+10. [朴素贝叶斯算法-高斯概率分布](./bayes/bayesfunction.py)
