@@ -29,6 +29,15 @@ def setOfWords2Vec(vocab_list, input_set):
             print "the word: {0} is not in my Vocabulary!".format(word)
     return return_vec
 
+def bagOfWords2VecMN(vocab_list, input_set):
+    return_vec = [0] * len(vocab_list)
+    for word in input_set:
+        if word in vocab_list:
+            return_vec[vocab_list.index(word)] += 1     #功能同前函数，只是这里修改，这是文档词袋模型。
+        else:
+            print "the word: {0} is not in my Vocabulary!".format(word)
+    return return_vec
+
 def trainNB0(train_matrix, train_category):
     """
     朴素贝叶斯分类器
@@ -39,23 +48,36 @@ def trainNB0(train_matrix, train_category):
     print num_train_docs
     num_words = len(train_matrix[0])
     p_abusive = sum(train_category) / float(num_train_docs)    #在训练分类中侮辱性文字占训练集合的概率
-    p0_num = zeros(num_words)      #正常文字初始概率
-    p1_num = zeros(num_words)      #侮辱性文字初始概率
-    p0_denom = 0.0
-    p1_denom = 0.0
-    for i in range(num_train_docs):
+    #p0_num = zeros(num_words)      #正常文字初始概率
+    #p1_num = zeros(num_words)      #侮辱性文字初始概率
+    #为了避免出现概率值为0
+    p0_num = ones(num_words)       #把初始值设为1
+    p1_num = ones(num_words)
+    #p0_denom = 0.0
+    #p1_denom = 0.0
+    p0_denom = 2       #将分母初始值设置为2
+    p1_denom = 2
+    for i in range(num_train_docs):    #分成两部分
         if train_category[i] == 1:
-            p1_num += train_matrix[i]
-            print p1_num
-            print "*" * 10
-            p1_denom += sum(train_matrix[i])
+            p1_num += train_matrix[i]           #分子分别为各行所对应数值的和（最终结果为每列数值的和）
+            p1_denom += sum(train_matrix[i])    #分母为所有数值的和
         else:
             p0_num += train_matrix[i]
             p0_denom += sum(train_matrix[i])
-    p1_vect = p1_num / p1_denom
-    p0_vect = p0_num / p0_denom
+    #p1_vect = p1_num / p1_denom                 #最终得到每个词汇在全体词汇中所占比例
+    #p0_vect = p0_num / p0_denom
+    #为了避免太小的数值，对上面的值取对数
+    p1_vect = log(p1_num / p1_denom)
+    p0_vect = log(p0_num / p0_denom)
     return p0_vect, p1_vect, p_abusive
 
+def classifyNB(vec2classify, p0vec, p1vec, pclass1):
+    p1 = sum(vec2classify * p1vec) + log(pclass1)
+    p0 = sum(vec2classify * p0vec) + log(1.0 - pclass1)
+    if p1 > p0:
+        return 1
+    else:
+        return 0
 
 def main():
     data_set = [['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
@@ -65,15 +87,17 @@ def main():
                ['mr', 'licks', 'ate', 'my', 'steak', 'how', 'to', 'stop', 'him'],
                ['quit', 'buying', 'worthless', 'dog', 'food', 'stupid']]
 
-    class_vec = [0, 1, 0, 1, 0, 1]
+    class_vec = [0, 1, 0, 1, 0, 1]     #分类，对应data_set的行数
 
     vocab_list = createVocabList(data_set)
     train_mat = []
     for listindata in data_set:
-        train_mat.append(setOfWords2Vec(vocab_list, listindata))    #以vocab_list为标准，如果listindata里的词汇在vocab_list中则为1,最终得到一个训练集合train_mat
-    p0v,p1v,pab = trainNB0(train_mat, class_vec)
-    print pab
-    print p0v
-    print p1v
+        train_mat.append(setOfWords2Vec(vocab_list, listindata))    #以vocab_list为标准，如果listindata里的词汇在vocab_list中则为1,最终得到一个训练集合train_mat，这个矩阵的每一行都记录了data_set中所有词汇在vocab_list中出现次数，出现了就是1
+    p0v,p1v,pab = trainNB0(array(train_mat), array(class_vec))
 
+    test_entry = ['love', 'my', 'dalmation']
+    this_doc = array(setOfWords2Vec(vocab_list, test_entry))
+    print test_entry, 'classified as:', classifyNB(this_doc, p0v, p1v,pab)
+
+    
 main()
